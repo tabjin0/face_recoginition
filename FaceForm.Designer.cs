@@ -53,6 +53,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picImageCompare)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSwiper)).BeginInit();
             this.SuspendLayout();
@@ -92,12 +93,12 @@
             // logBox
             // 
             this.logBox.BackColor = System.Drawing.Color.White;
-            this.logBox.Location = new System.Drawing.Point(14, 503);
+            this.logBox.Location = new System.Drawing.Point(15, 721);
             this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
             this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logBox.Size = new System.Drawing.Size(1083, 113);
+            this.logBox.Size = new System.Drawing.Size(315, 113);
             this.logBox.TabIndex = 31;
             // 
             // chooseImgBtn
@@ -170,7 +171,7 @@
             // 
             this.videoSource.Location = new System.Drawing.Point(248, 63);
             this.videoSource.Name = "videoSource";
-            this.videoSource.Size = new System.Drawing.Size(988, 724);
+            this.videoSource.Size = new System.Drawing.Size(988, 652);
             this.videoSource.TabIndex = 38;
             this.videoSource.Text = "videoSource";
             this.videoSource.VideoSource = null;
@@ -236,7 +237,7 @@
             // 
             this.pictureBoxSwiper.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBoxSwiper.BackgroundImage")));
             this.pictureBoxSwiper.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureBoxSwiper.Location = new System.Drawing.Point(162, -2);
+            this.pictureBoxSwiper.Location = new System.Drawing.Point(335, -6);
             this.pictureBoxSwiper.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBoxSwiper.Name = "pictureBoxSwiper";
             this.pictureBoxSwiper.Size = new System.Drawing.Size(1470, 873);
@@ -286,12 +287,23 @@
             this.notifyIcon.Visible = true;
             this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(255, 26);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 51;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FaceForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(1457, 846);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -355,6 +367,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NotifyIcon notifyIcon;
+        private System.Windows.Forms.Button button1;
     }
 }
 

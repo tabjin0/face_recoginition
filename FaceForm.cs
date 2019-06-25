@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace YunZhiFaceReco
 {
@@ -405,6 +406,7 @@ namespace YunZhiFaceReco
 
 
         private object locker = new object();
+
         /// <summary>
         /// 人脸库图片选择按钮事件
         /// </summary>
@@ -487,7 +489,8 @@ namespace YunZhiFaceReco
                         for (int i = numStart; i < imagePathList.Count; i++)
                         {
                             ASF_SingleFaceInfo singleFaceInfo = new ASF_SingleFaceInfo();
-                            IntPtr feature = FaceUtil.ExtractFeature(pImageEngine, Image.FromFile(imagePathList[i]), out singleFaceInfo);
+                            // TODO  将feature存入数据库,byte[]，这边已经在FaceUtils中处理了
+                            IntPtr feature = FaceUtil.ExtractFeature(pImageEngine, Image.FromFile(imagePathList[i]), out singleFaceInfo);// 人脸特征
                             this.Invoke(new Action(delegate
                             {
                                 if (singleFaceInfo.faceRect.left == 0 && singleFaceInfo.faceRect.right == 0)
@@ -496,6 +499,7 @@ namespace YunZhiFaceReco
                                 }
                                 else
                                 {
+                                    
                                     AppendText(string.Format("已提取{0}号人脸特征值，[left:{1},right:{2},top:{3},bottom:{4},orient:{5}]\r\n", i, singleFaceInfo.faceRect.left, singleFaceInfo.faceRect.right, singleFaceInfo.faceRect.top, singleFaceInfo.faceRect.bottom, singleFaceInfo.faceOrient));
                                     imagesFeatureList.Add(feature);
                                 }
@@ -753,10 +757,10 @@ namespace YunZhiFaceReco
                         {
                             try
                             {
-                                //提取人脸特征
+                                //提取人脸特征 TODO 这是当前摄像头下的人脸的特征值
                                 IntPtr feature = FaceUtil.ExtractFeature(pVideoImageEngine, bitmap, maxFace);
                                 float similarity = 0f;
-                                //得到比对结果
+                                //得到比对结果 star
                                 int result = compareFeature(feature, out similarity);
                                 if (result > -1)
                                 {
@@ -910,9 +914,17 @@ namespace YunZhiFaceReco
                 return;
             }
         }
+
+        
         /********************************************最小至托盘 end*******************************************/
 
-
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string id = "bb1fe179-097d-4bfc-ab3f-0b8f53c2d643";
+            MysqlUtils mysqlUtils = new MysqlUtils();
+            var result = mysqlUtils.PriciseSelectById(id);
+            Console.WriteLine(result);
+        }
 
     }
 }
