@@ -502,6 +502,19 @@ namespace YunZhiFaceReco
                                     
                                     AppendText(string.Format("已提取{0}号人脸特征值，[left:{1},right:{2},top:{3},bottom:{4},orient:{5}]\r\n", i, singleFaceInfo.faceRect.left, singleFaceInfo.faceRect.right, singleFaceInfo.faceRect.top, singleFaceInfo.faceRect.bottom, singleFaceInfo.faceOrient));
                                     imagesFeatureList.Add(feature);
+
+                                    // TODO 数据库中查询出feature
+                                    /*
+                                     IntPtr pFeatureItemFromDB;
+                                    MysqlUtils mysqlUtils = new MysqlUtils();
+                                    List<byte[]> featureListFromDB = mysqlUtils.SelectUserFaceByFeature();
+                                    foreach (byte[] featureItemFromDB in featureListFromDB)
+                                    {
+                                        pFeatureItemFromDB = TabConvert.BytesToIntptr(featureItemFromDB);
+                                        imagesFeatureList.Add(pFeatureItemFromDB);
+                                    }
+                                     */
+
                                 }
                             }));
                         }
@@ -703,7 +716,7 @@ namespace YunZhiFaceReco
         /// <param name="e"></param>
         private void videoSource_Paint(object sender, PaintEventArgs e)
         {
-            if (videoSource.IsRunning)
+            if (videoSource.IsRunning)// 摄像头运行中
             {
                 //得到当前摄像头下的图片
                 Bitmap bitmap = videoSource.GetCurrentVideoFrame();
@@ -758,10 +771,40 @@ namespace YunZhiFaceReco
                             try
                             {
                                 //提取人脸特征 TODO 这是当前摄像头下的人脸的特征值
-                                IntPtr feature = FaceUtil.ExtractFeature(pVideoImageEngine, bitmap, maxFace);
+                                IntPtr videoFaceFeature = FaceUtil.ExtractFeature(pVideoImageEngine, bitmap, maxFace);
                                 float similarity = 0f;
-                                //得到比对结果 star
-                                int result = compareFeature(feature, out similarity);
+                                //得到比对结果 star TODO 这边compareFeature中
+                                // TODO 数据库中查询出feature
+                                
+                                MysqlUtils mysqlUtils = new MysqlUtils();
+                                List<byte[]> featureListFromDB = mysqlUtils.SelectUserFaceByFeature();// 数据库查询
+                                var v = 0;
+                                for (int i = 0; i < featureListFromDB.Count; i++)
+                                {
+                                    //pFeatureItemFromDB = TabConvert.BytesToIntptr(featureListFromDB[i]);
+                                    //GCHandle hObject = GCHandle.Alloc(featureListFromDB[i], GCHandleType.Pinned);
+                                    //pFeatureItemFromDB = hObject.AddrOfPinnedObject();
+
+
+                                    ASF_FaceFeature localFeature = new ASF_FaceFeature();
+                                    localFeature.feature = MemoryUtil.Malloc(featureListFromDB[i].Length);// 申请本地人脸特征指针
+                                    MemoryUtil.Copy(featureListFromDB[i], 0, localFeature.feature, featureListFromDB[i].Length);// source, startIndex, destination, length
+                                    localFeature.featureSize = featureListFromDB[i].Length;// 设置本地特征值长度
+                                    IntPtr pLocalFeature = MemoryUtil.Malloc(MemoryUtil.SizeOf<ASF_FaceFeature>());// 申请本地特征值指针空间
+                                    MemoryUtil.StructureToPtr(localFeature, pLocalFeature);// T t,IntPtr ptr
+   
+                                    /*
+                                     IntPtr pFeatureItemFromDB = MemoryUtil.Malloc(MemoryUtil.SizeOf<ASF_FaceFeature>());
+                                    v++;
+                                    Marshal.StructureToPtr(featureListFromDB[i], pFeatureItemFromDB, false);
+                                    Marshal.FreeHGlobal(pFeatureItemFromDB);
+                                     */
+
+                                    imagesFeatureList.Add(pLocalFeature);
+                                }
+
+
+                                int result = compareFeatureFromDB(videoFaceFeature, out similarity);
                                 if (result > -1)
                                 {
                                     // TODO
@@ -824,6 +867,34 @@ namespace YunZhiFaceReco
                 {
                     //调用人脸匹配方法，进行人脸特征匹配
                     ASFFunctions.ASFFaceFeatureCompare(pVideoImageEngine, feature, imagesFeatureList[i], ref similarity);
+                    if (similarity >= threshold)// 相似度大于阈值，输出人脸序号，暂时默认阈值为0.8
+                    {
+                        result = i;
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+        
+        /// <summary>
+        /// 得到feature比较结果
+        /// </summary>
+        /// <param name="pVideoFaceFeature"></param>
+        /// <returns></returns>
+        private int compareFeatureFromDB(IntPtr pVideoFaceFeature, out float similarity)
+        {
+            int result = -1;
+            similarity = 0f;
+
+
+            //如果人脸库不为空，则进行人脸匹配
+            if (imagesFeatureList != null && imagesFeatureList.Count > 0)
+            {
+                for (int i = 0; i < imagesFeatureList.Count; i++)
+                {
+                    //调用人脸匹配方法，进行人脸特征匹配
+                    ASFFunctions.ASFFaceFeatureCompare(pVideoImageEngine, pVideoFaceFeature, imagesFeatureList[i], ref similarity);
                     if (similarity >= threshold)// 相似度大于阈值，输出人脸序号，暂时默认阈值为0.8
                     {
                         result = i;
@@ -920,9 +991,10 @@ namespace YunZhiFaceReco
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string id = "bb1fe179-097d-4bfc-ab3f-0b8f53c2d643";
+            string id = "220bd11e-86bf-4c80-8535-8a9c0818c760";
             MysqlUtils mysqlUtils = new MysqlUtils();
-            var result = mysqlUtils.PriciseSelectById(id);
+            //var result = mysqlUtils.PriciseSelectById(id);
+            var result = mysqlUtils.SelectUserFaceByFeature();
             Console.WriteLine(result);
         }
 

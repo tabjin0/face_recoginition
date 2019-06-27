@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 //Add MySql Library
 using MySql.Data;
 using MySql.Data.MySqlClient;
@@ -86,16 +87,15 @@ namespace YunZhiFaceReco
             string department = users.Department;
             //byte[] featureByte = users.Feature;
 
-            // INSERT INTO `face-reco`.`face`(`id`, `name`, `utoken`, `department`, `feature`) VALUES ('1', 'jinjin', '444', '444', '444')
-            //string query = "INSERT INTO `face-reco`.`face`(`id`, `name`, `utoken`, `department`, `feature`) VALUES ('" + id + "', '" + name + "', '" + uToken + "', '" + department + "', @feature)";
             string query = "INSERT INTO `face-reco`.`face`(`id`, `name`, `utoken`, `department`, `feature`) VALUES (@id, @name, @uToken,@department,@feature)";
-            // query = "UPDATE `face-reco`.`face` SET `feature` = @feature WHERE `id` = 'bb1fe179-097d-4bfc-ab3f-0b8f53c2d643'";
+            
             //open connection
             if (this.OpenConnection() == true)
             {
                 //create command and assign the query and connection from the constructor
                 using (MySqlCommand cmd = new MySqlCommand(query, connection))
                 {
+                    // 参数插入
                     cmd.Parameters.Add("@id", MySqlDbType.VarChar).Value = id;
                     cmd.Parameters.Add("@name", MySqlDbType.VarChar).Value = name;
                     cmd.Parameters.Add("@uToken", MySqlDbType.VarChar).Value = uToken;
@@ -117,6 +117,46 @@ namespace YunZhiFaceReco
             }
         }
 
+        public List<byte[]> SelectUserFaceByFeature() 
+        {
+            string query = "SELECT `feature` FROM `face-reco`.`face`";// 全部查询
+
+            // 创建list存储数据
+            List<byte[]> list = new List<byte[]>();
+            byte[] faceFeature = null;
+            byte[] finalFaceFeature = null;
+
+            //Open connection
+            if (this.OpenConnection() == true)
+            {
+                // 创建命令
+                MySqlCommand cmd = new MySqlCommand(query, connection);
+                // 读取数据
+                MySqlDataReader dataReader = cmd.ExecuteReader();
+
+                // 存储数据
+                while (dataReader.Read())
+                {
+
+                    faceFeature = TabConvert.ObjectToBytes(dataReader["feature"]);
+                    finalFaceFeature = faceFeature.Skip(27).Take(1032).ToArray();// 从第5位开始截取3个字节
+                    list.Add(finalFaceFeature);
+                }
+
+                //close Data Reader
+                dataReader.Close();
+
+                //close Connection
+                this.CloseConnection();
+
+                //return list to be displayed
+                return list;
+            }
+            else
+            {
+                return list;
+            }
+        }
         public byte[] PriciseSelectById(string id)
         {
            

@@ -133,6 +133,8 @@
     </Compile>
     <Compile Include="SDKUtil\ASFFunctions.cs" />
     <Compile Include="SidUtils.cs" />
+    <Compile Include="TabArrayUtils.cs" />
+    <Compile Include="TabConvert.cs" />
     <Compile Include="Users.cs" />
     <Compile Include="Utils\FaceUtil.cs" />
     <Compile Include="Utils\ImageUtil.cs" />
